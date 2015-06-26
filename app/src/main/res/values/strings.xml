@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Postman Pattern</string>
+
+    <!-- Main activity -->
+    <string name="request_data_button">Request data</string>
+    <string name="number_followers_text">You have %1$d followers</string>
+
+    <!-- Another activity -->
+    <string name="title_activity_another">Another Activity</string>
+    <string name="back_button">Back</string>
+
 </resources>
