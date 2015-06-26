@@ -41,6 +41,9 @@ public class PostmanObservable extends Observable {
      *      The observer to be notified when the data is ready
      */
     public void requestNumberFollowers(Observer observer) {
+        Log.v(TAG, "Requesting the number of followers");
+
+        // Register the observer
         addObserver(observer);
         mSimpleCountDownTimer = new SimpleCountDownTimer(WAITING_MILLISECONDS);
         mSimpleCountDownTimer.start();
@@ -60,6 +63,7 @@ public class PostmanObservable extends Observable {
         @Override
         public void onFinish() {
             int numberFollowers = mRandom.nextInt(MAXIMUM_FOLLOWERS);
+            Log.v(TAG, numberFollowers + " followers found. Send the data back to the observer");
             setChanged();
             notifyObservers(numberFollowers);
         }
