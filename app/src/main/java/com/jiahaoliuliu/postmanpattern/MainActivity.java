@@ -3,14 +3,17 @@ package com.jiahaoliuliu.postmanpattern;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Observable;
+import java.util.Observer;
 
-public class MainActivity extends PostmanActivity {
+public class MainActivity extends AppCompatActivity implements Observer {
 
     private static final String TAG = "MainActivity";
 
@@ -22,7 +25,7 @@ public class MainActivity extends PostmanActivity {
     private TextView mNumberFollowersTextView;
 
     // Other data
-    private PostmanObservable mPostmanObservable;
+    private SimpleObservable mSimpleObservable;
     private int mNumberFollowers = -1;
 
     // Response data
@@ -36,7 +39,7 @@ public class MainActivity extends PostmanActivity {
 
         mContext = this;
 
-        mPostmanObservable = new PostmanObservable();
+        mSimpleObservable = new SimpleObservable();
 
         // Link the views
         mRequestDataButton = (Button) findViewById(R.id.request_data_button);
@@ -48,9 +51,9 @@ public class MainActivity extends PostmanActivity {
                 // Requesting data to the observer
                 // and go to another activity
                 Log.v(TAG, "Requesting data to the observable");
-                mPostmanObservable.requestNumberFollowers(MainActivity.this);
                 Intent startAnotherActivityIntent = new Intent(mContext, AnotherActivity.class);
                 startActivity(startAnotherActivityIntent);
+                mSimpleObservable.requestNumberFollowers(MainActivity.this);
             }
         });
     }
@@ -58,49 +61,23 @@ public class MainActivity extends PostmanActivity {
     @Override
     public void update(Observable observable, Object o) {
         Log.v(TAG, "Update received from the observable " + observable + " with data " + o);
-        if (observable instanceof  PostmanObservable) {
+        if (observable instanceof SimpleObservable) {
             Log.v(TAG, "It was from the Postman observable");
             if (o instanceof Integer) {
                 response = (Integer) o;
                 Log.v(TAG, "response received " + response);
 
-                // If at the moment when the data is received
-                // the activity is in the foreground, process it.
-                if (isInForeground) {
-                    Log.v(TAG, "The activity is in the foreground. Processing data");
-                    processDataIfExists();
-                } else {
-                    Log.v(TAG, "The activity is not in the foreground. Not processing data");
-                }
+                // Update the text view
+                mNumberFollowers = response;
+                mNumberFollowersTextView.setText(
+                        getString(R.string.number_followers_text, mNumberFollowers)
+                );
+                mNumberFollowersTextView.setVisibility(View.VISIBLE);
 
                 // Remove the observer since it is not used
                 Log.v(TAG, "Delete the observer");
                 observable.deleteObserver(this);
             }
         }
-    }
-
-    @Override
-    protected void processDataIfExists() {
-        Log.v(TAG, "Processing data if exists");
-        // 1. Check if the data exists
-        if (response == -1) {
-            Log.v(TAG, "There is not new data to be proceed. Exit");
-            return;
-        }
-
-        // 2. Process data
-        // In this case it is a simple assignation. It could be more
-        // complicate depending on the nature of the data
-        Log.v(TAG, "Processing data");
-        mNumberFollowers = response;
-        mNumberFollowersTextView.setText(
-                getString(R.string.number_followers_text, mNumberFollowers)
-        );
-        mNumberFollowersTextView.setVisibility(View.VISIBLE);
-
-        // 3. Remove data
-        Log.v(TAG, "Removing data");
-        response = -1;
     }
 }
